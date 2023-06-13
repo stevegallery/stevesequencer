@@ -241,7 +241,7 @@ let songChars: string[] = []
 volH = 255
 volM = volH / 2
 let volL = 40
-music.setTempo(60 * 7)
+music.setTempo(60 * 8)
 numChords = 4
 Cscale = [
     "C1",
