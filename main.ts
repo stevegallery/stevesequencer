@@ -1,16 +1,30 @@
 input.onButtonPressed(Button.A, function () {
-    // let user either start song, or change tempo 
+    // let user either start song, or change tempo
     if (!(started)) {
         setup()
     } else {
-        // let user can change tempo with buttons 
-        music.changeTempoBy(-20)
+        // let user can change tempo with buttons
+        music.changeTempoBy(-60)
         showTempo()
     }
 })
-
+function showTempo() {
+    basic.clearScreen()
+    basic.showNumber(music.tempo(), 40)
+    showBG()
+}
+function showBG() {
+    // show sequence dot
+    for (let dot = 0; dot <= seqLen - 1; dot++) {
+        led.plotBrightness(dot % 5, dot / 5, dim)
+    }
+    // show chord dot
+    for (let dot2 = 0; dot2 <= numChords - 1; dot2++) {
+        led.plotBrightness(dot2, 4, dim)
+    }
+}
 input.onButtonPressed(Button.B, function () {
-    // let user either choose song, or change tempo 
+    // let user either choose song, or change tempo
     if (!(started)) {
         song += 1
         if (song > songChars.length - 1) {
@@ -18,33 +32,13 @@ input.onButtonPressed(Button.B, function () {
         }
         basic.showString(songChars[song], 40)
     } else {
-        music.changeTempoBy(20)
+        music.changeTempoBy(60)
         showTempo()
     }
 })
-
-function showTempo() {
-    basic.clearScreen()
-    basic.showNumber(music.tempo(), 40)
-    showBG()
-}
-
-function showBG() {
-    // show sequence dot 
-    for (let dot = 0; dot <= seqLen - 1; dot++) {
-        led.plotBrightness(dot % 5, dot / 5, dim)
-    }
-
-    // show chord dot 
-    for (let dot2 = 0; dot2 <= numChords - 1; dot2++) {
-        led.plotBrightness(dot2, 4, dim)
-    }
-}
-
-
 // do everthing needed before playing song
 function setup() {
-    // create sequence strings 
+    // create sequence strings
     sequenceC = " "
     sequenceCE = " "
     sequenceAm = " "
@@ -60,169 +54,174 @@ function setup() {
     sequenceDm = " "
     sequenceCs = " "
     ost = " "
-
-
     seqLen = 16
     if (song >= 11) {
         seqLen = 8
     }
-
-    if (song == 7) { // special short riff 
+    if (song == 7) {
+        // special short riff
         seqLen = 4
     }
-
-
-    if (song == 6) {   // special short riff, with long start-note
+    if (song == 6) {
+        // special short riff, with long start-note
         seqLen = 3
     }
-
-
-    if (song == 4 || song == 16) {  // single riffs 
+    if (song == 4 || song == 16 || song == 3) {
+        // single sequence
         numChords = 1
+        let remainingBeats = 4 * seqLen
         for (let i = 0; i <= seqLen - 1; i++) {
             sNote = randint(0, Cscale.length - 1)
-            sequenceCs += Cscale[sNote]
-
-            if (song >= 11) {  // 8-note seqs
-                sequenceCs += ":8"
+            if (song != 3) {
+                sequenceCs = "" + sequenceCs + Cscale[sNote]
             }
 
-            sequenceCs += " "
+            if (song >= 11) {  // 8-note seqs
+                sequenceCs = "" + sequenceCs + ":8"  // double length
+            }
+            if (song == 3) { // super-random seq
+                if (remainingBeats >= 0) {
+                    let notelen = 2 ** randint(1, 3)
+                    if (notelen >= remainingBeats) {
+                        notelen = remainingBeats
+                        remainingBeats = 0;
+                    } else {
+                        remainingBeats -= notelen;
+                    }
+                    if (notelen > 0) {
+                        sequenceCs = "" + sequenceCs + Cscale[sNote] + ":" + notelen  // random length
+                    }
+                }                
+            }
+            sequenceCs = "" + sequenceCs + " "
         }
     } else {
         for (let j = 0; j <= seqLen - 1; j++) {
             sNote = randint(0, CMnotes.length - 1)
-            sequenceC += CMnotes[sNote] + " "
-
+            sequenceC = "" + sequenceC + CMnotes[sNote] + " "
             if (song == 12) {
-                sNote = randint(0, FMnotes.length - 1) // a diffrent pattern 
+                // a diffrent pattern
+                sNote = randint(0, FMnotes.length - 1)
             }
-            sequenceF += FMnotes[sNote] + " "
-
+            sequenceF = "" + sequenceF + FMnotes[sNote] + " "
+            // a diffrent pattern
             if (song == 12) {
-                sNote = randint(0, GMnotes.length - 1)// a diffrent pattern 
+                sNote = randint(0, GMnotes.length - 1)
             }
-            sequenceG += GMnotes[sNote] + " "
-
-
-            sequenceAm += AmNotes[sNote] + " "
-            sequenceEm += EmNotes[sNote] + " "
-            sequenceDm += DmNotes[sNote] + " "
+            sequenceG = "" + sequenceG + GMnotes[sNote] + " "
+            sequenceAm = "" + sequenceAm + AmNotes[sNote] + " "
+            sequenceEm = "" + sequenceEm + EmNotes[sNote] + " "
+            sequenceDm = "" + sequenceDm + DmNotes[sNote] + " "
         }
     }
-
     basic.clearScreen()
-
-    if (song == 3) {
+    if (song == 99) {
         numChords = 2
         for (let k = 0; k <= seqLen - 1; k++) {
             sNote = randint(0, AmXNotes.length - 1)
-            sequenceAmX += AmXNotes[sNote] + " "
-            sequenceGX += GXnotes[sNote] + " "
+            sequenceAmX = "" + sequenceAmX + AmXNotes[sNote] + " "
+            sequenceGX = "" + sequenceGX + GXnotes[sNote] + " "
         }
     }
 
 
-    // echoing notes 
-    for (let l = 0; l <= ((seqLen - 1) / 2); l++) {
+
+
+    // echoing notes
+    for (let l = 0; l <= (seqLen - 1) / 2; l++) {
         sNote = randint(2, CMnotes.length - 1)
-        sequenceGE += GMnotes[sNote] + " "
-        sequenceGE += GMnotes[sNote] + " "
-        sequenceCE += CMnotes[sNote] + " "
-        sequenceCE += CMnotes[sNote] + " "
-        sequenceFE += FMnotes[sNote] + " "
-        sequenceFE += FMnotes[sNote] + " "
+        sequenceGE = "" + sequenceGE + GMnotes[sNote] + " "
+        sequenceGE = "" + sequenceGE + GMnotes[sNote] + " "
+        sequenceCE = "" + sequenceCE + CMnotes[sNote] + " "
+        sequenceCE = "" + sequenceCE + CMnotes[sNote] + " "
+        sequenceFE = "" + sequenceFE + FMnotes[sNote] + " "
+        sequenceFE = "" + sequenceFE + FMnotes[sNote] + " "
     }
-
-
-
-
-
-    // ostinato 
+    // ostinato
     if (song == 9) {
         numChords = 2
         seqLen = 15
-        for (let m = 0; m < 14; m++) {
+        for (let index = 0; index < 14; index++) {
             sNote = randint(0, Oscale.length)
-            ost += Oscale[sNote] + ":4 "
+            ost = "" + ost + Oscale[sNote] + ":4 "
         }
     }
-
-
-
     // Walkdown-bass
     if (song == 13) {
         seqLen = 7
-        for (let m = 0; m < 6; m++) {
+        for (let index = 0; index < 6; index++) {
             sNote = randint(0, Oscale.length)
-            ost += Oscale[sNote] + ":4 "
+            ost = "" + ost + Oscale[sNote] + ":4 "
         }
     }
-
     showBG()
     started = true
 }
-
-
-
-// do actions for each note 
-
+// do actions for each note
 music.onEvent(MusicEvent.MelodyNotePlayed, function () {
-
-    // reset bright dots 
+    // reset bright dots
     led.plotBrightness(noteCounter % 5, noteCounter / 5, dim)
     led.plotBrightness(chordCounter, 4, dim)
-
     noteCounter += 1
     if (noteCounter >= seqLen) {
         noteCounter = 0
         chordCounter += 1
-        music.setVolume(volH)   // full volume for first note in seq 
+        // full volume for first note in seq
+        music.setVolume(volH)
     } else {
         if (song == 7) {
-            music.setVolume(volM)  // lower volume for non-first note in seq 
+            // lower volume for non-first note in seq
+            music.setVolume(volM)
         }
     }
-
-    if (song == 8) {  // echo notes 
+    if (song == 8) {
+        // echo notes
         music.setTempo(600)
-        if ((noteCounter % 2) == 1) {
-            music.setVolume(volM)   //  volume for echo 
+        if (noteCounter % 2 == 1) {
+            // volume for echo
+            music.setVolume(volM)
         } else {
-            music.setVolume(volH)  //  volume for note 
+            // volume for note
+            music.setVolume(volH)
         }
     }
-
-
     if (chordCounter >= numChords) {
         chordCounter = 0
     }
-
-    // light new dots 
+    // light new dots
     led.plotBrightness(noteCounter % 5, noteCounter / 5, 255)
     led.plotBrightness(chordCounter, 4, 255)
-
     // trigger drums via pins
     if (noteCounter % 4 == 0) {
         pins.digitalWritePin(DigitalPin.P1, 1)
     } else {
         pins.digitalWritePin(DigitalPin.P1, 0)
     }
-
     if (noteCounter % 2 == 0) {
         pins.digitalWritePin(DigitalPin.P2, 1)
     } else {
         pins.digitalWritePin(DigitalPin.P2, 0)
     }
 })
-
 let chordCounter = 0
 let noteCounter = 0
 let sNote = 0
+let ost = ""
+let sequenceCs = ""
+let sequenceDm = ""
+let sequenceEm = ""
+let sequenceGX = ""
+let sequenceGE = ""
+let sequenceG = ""
+let sequenceFE = ""
+let sequenceF = ""
+let sequenceAmE = ""
+let sequenceAmX = ""
+let sequenceAm = ""
+let sequenceCE = ""
+let sequenceC = ""
 let seqLen = 0
 let started = false
-let songChars: string[] = []
-let song = 0
 let dim = 0
 let DmNotes: string[] = []
 let EmNotes: string[] = []
@@ -232,30 +231,18 @@ let FMnotes: string[] = []
 let CMnotes: string[] = []
 let AmXNotes: string[] = []
 let AmNotes: string[] = []
-let Cscale: string[] = []
 let Oscale: string[] = []
+let Cscale: string[] = []
 let numChords = 0
-let sequenceCs = ""
-let sequenceCE = ""
-let sequenceDm = ""
-let sequenceEm = ""
-let sequenceGX = ""
-let sequenceG = ""
-let sequenceGE = ""
-let sequenceF = ""
-let sequenceFE = ""
-let sequenceAmX = ""
-let sequenceAm = ""
-let sequenceAmE = ""
-let sequenceC = ""
-let ost = ""
-
-let volH = 255
-let volM = volH / 2
+let volM = 0
+let volH = 0
+let song = 0
+let songChars: string[] = []
+volH = 255
+volM = volH / 2
 let volL = 40
-music.setTempo(400)
+music.setTempo(60 * 7)
 numChords = 4
-
 Cscale = [
     "C1",
     "D1",
@@ -278,10 +265,15 @@ Cscale = [
     "G3",
     "A3",
     "B3",
-    "-", "-", "-", "-",
-    "-", "-", "-", "-"
+    "-",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-"
 ]
-
 Oscale = [
     "C2",
     "D2",
@@ -298,9 +290,6 @@ Oscale = [
     "A3",
     "B3"
 ]
-
-
-
 AmNotes = [
     "A0",
     "C1",
@@ -312,7 +301,6 @@ AmNotes = [
     "C3",
     "E3"
 ]
-
 AmXNotes = [
     "A0",
     "A1",
@@ -328,7 +316,6 @@ AmXNotes = [
     "A3",
     "B3"
 ]
-
 CMnotes = [
     "C1",
     "E1",
@@ -340,7 +327,6 @@ CMnotes = [
     "E3",
     "G3"
 ]
-
 FMnotes = [
     "F1",
     "A1",
@@ -352,7 +338,6 @@ FMnotes = [
     "A3",
     "C4"
 ]
-
 GMnotes = [
     "G1",
     "B1",
@@ -364,7 +349,6 @@ GMnotes = [
     "B3",
     "D4"
 ]
-
 GXnotes = [
     "G1",
     "C2",
@@ -380,7 +364,6 @@ GXnotes = [
     "A3",
     "B3"
 ]
-
 EmNotes = [
     "E1",
     "G1",
@@ -405,159 +388,134 @@ DmNotes = [
 ]
 dim = 255 / 20
 song = 1
+// Am progression
+// CAFG
+// Am G
+// single long random seq
+// 1 4 5
+// long first note
+// volume change
+// echo
+// ostinato
+// asc chords
+// descenting chords
+// individual patterm for each chord
+// single short random seq
 songChars = [
     " ",
-    "a", // Am progression 
-    "C", // CAFG 
-    "G", // Am G 
-    "R", // single long random seq 
-    "1", // 1 4 5  
-    "L", // long first note 
-    "V", // volume change 
-    "E", //  echo 
-    "O", // ostinato    
-    "+", // asc chords 
-    "-", // descenting chords 
-    "I", // individual patterm for each chord 
+    "a",
+    "C",
+    "S",
+    "R",
+    "1",
+    "L",
+    "V",
+    "E",
+    "O",
+    "+",
+    "-",
+    "I",
     "W",
     "4",
     "5",
-    "r" // single short random seq 
+    "r"
 ]
 basic.showString(songChars[song], 40)
-
 basic.forever(function () {
-    if (started) {  // aiting for user to press start Button      
-        // handle each song 
-        // they vary in # notes, # chords, randomness, volume-change, rests 
-
-        // ------------------  16-note songs 
-
+    if (started) {
+        // aiting for user to press start Button
+        // handle each song
+        // they vary in # notes, # chords, randomness, volume-change, rests
+        // ------------------  16-note songs
         if (song == 1) {
-            // Am F G Am 
+            // Am F G Am
             music.playMelody(sequenceAm, music.tempo())
             music.playMelody(sequenceF, music.tempo())
             music.playMelody(sequenceG, music.tempo())
             music.playMelody(sequenceAm, music.tempo())
         }
-
         if (song == 2) {
-            // C Am F G 
+            // C Am F G
             music.playMelody(sequenceC, music.tempo())
             music.playMelody(sequenceAm, music.tempo())
             music.playMelody(sequenceF, music.tempo())
             music.playMelody(sequenceG, music.tempo())
         }
-
         if (song == 3) {
-            // Am G (with extended chord-note-choices) 
-            music.playMelody(sequenceAmX, music.tempo())
-            music.playMelody(sequenceGX, music.tempo())
-        }
-
-        if (song == 4) {
-            // random 16-note sequence in C scale (has rests) 
+            // "super-random" sequence
             music.playMelody(sequenceCs, music.tempo())
         }
 
-
+        if (song == 4) {
+            // random 16-note sequence in C scale (has rests)
+            music.playMelody(sequenceCs, music.tempo())
+        }
         if (song == 5) {
-            // C F G F 
+            // C F G F
             music.playMelody(sequenceC, music.tempo())
             music.playMelody(sequenceF, music.tempo())
             music.playMelody(sequenceG, music.tempo())
             music.playMelody(sequenceF, music.tempo())
         }
-
-
         if (song == 6) {
-            // 3 note seqs; double-length first note each time 
+            // 3 note seqs; double-length first note each time
             music.playMelody("C2:8 E2:4  C2", music.tempo())
             music.playMelody("F2:8 A2:4  F2", music.tempo())
             music.playMelody("G2:8 B2:4  G2", music.tempo())
             music.playMelody("F2:8 C3:4  F2", music.tempo())
         }
-
-
         if (song == 7) {
-            // 4 note seqs; volume-increase on 1st of every 4 
+            // 4 note seqs; volume-increase on 1st of every 4
             music.playMelody("C2 E2 G2 C2", music.tempo())
             music.playMelody("F2 A2 C3 F2", music.tempo())
             music.playMelody("G2 B2 D2 G2", music.tempo())
             music.playMelody("F2 C3 A2 F2", music.tempo())
         }
-
-
         if (song == 8) {
-            // echoed notes 
+            // echoed notes
             music.playMelody(sequenceCE, music.tempo())
             music.playMelody(sequenceGE, music.tempo())
             music.playMelody(sequenceFE, music.tempo())
             music.playMelody(sequenceGE, music.tempo())
         }
-
-
         if (song == 9) {
-            // ostinato 
+            // ostinato
             music.playMelody("C2:8 " + ost, music.tempo())
             music.playMelody("F2:8 " + ost, music.tempo())
         }
-
-
         if (song == 10) {
-            // Am C Dm F (Ascending Am chords) 
+            // Am C Dm F (Ascending Am chords)
             music.playMelody(sequenceAm, music.tempo())
             music.playMelody(sequenceC, music.tempo())
             music.playMelody(sequenceDm, music.tempo())
             music.playMelody(sequenceF, music.tempo())
-
         }
-
-
-
-
-        // ------------------ 8-note songs 
+        // ------------------ 8-note songs
         if (song == 11) {
-            // Am G F Em (falling Am) 
+            // Am G F Em (falling Am)
             music.playMelody(sequenceAm, music.tempo())
             music.playMelody(sequenceG, music.tempo())
             music.playMelody(sequenceF, music.tempo())
             music.playMelody(sequenceEm, music.tempo())
         }
-
-
         if (song == 12) {
-            // different pattern for each chord 
-            // C F G F 
+            // different pattern for each chord
+            // C F G F
             music.playMelody(sequenceC, music.tempo())
             music.playMelody(sequenceF, music.tempo())
             music.playMelody(sequenceG, music.tempo())
             music.playMelody(sequenceF, music.tempo())
         }
-
-
         if (song == 13) {
-            // Walkdown 
+            // Walkdown
             music.playMelody("C3:8 " + ost, music.tempo())
             music.playMelody("B2:8 " + ost, music.tempo())
             music.playMelody("A2:8 " + ost, music.tempo())
             music.playMelody("G2:8 " + ost, music.tempo())
         }
-
-
-
-
         if (song == 16) {
             // random 8-note sequence
             music.playMelody(sequenceCs, music.tempo())
         }
-
-
-
-
-
-
-
     }
-
 })
