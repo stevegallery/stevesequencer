@@ -3,13 +3,13 @@
 
 ## How to set up the stevesequencer on your microbit
 * download the .hex file for this project
-* connect your microbit to your compurt
-* drag and drop the .hex file onto your microbit that has appears as a drive
+* connect your microbit to your compurer via USB
+* drag and drop the .hex file onto your microbit that has appeared as a drive
 * connect the wires from headphones to pin #1 and ground.
 
 ## How to use the stevesequencer
-* press the right burron to select a song
-* press the first button to start the cong
+* press the right button to select a song
+* press the left button to start the song
 
 
 ## Use as Extension
