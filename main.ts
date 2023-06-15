@@ -66,9 +66,12 @@ function setup() {
         // special short riff, with long start-note
         seqLen = 3
     }
+    
     if (song == 4 || song == 16 || song == 3) {
         // single sequence
         numChords = 1
+        let notesOut = 0
+
         let remainingBeats = 4 * seqLen
         for (let i = 0; i <= seqLen - 1; i++) {
             sNote = randint(0, Cscale.length - 1)
@@ -90,11 +93,13 @@ function setup() {
                     }
                     if (notelen > 0) {
                         sequenceCs = "" + sequenceCs + Cscale[sNote] + ":" + notelen  // random length
+                        ++notesOut
                     }
                 }                
             }
             sequenceCs = "" + sequenceCs + " "
         }
+        seqLen = notesOut
     } else {
         for (let j = 0; j <= seqLen - 1; j++) {
             sNote = randint(0, CMnotes.length - 1)
@@ -191,9 +196,10 @@ music.onEvent(MusicEvent.MelodyNotePlayed, function () {
     // light new dots
     led.plotBrightness(noteCounter % 5, noteCounter / 5, 255)
     led.plotBrightness(chordCounter, 4, 255)
+    
     // trigger drums via pins
     if (noteCounter % 4 == 0) {
-        pins.digitalWritePin(DigitalPin.P1, 1)
+        pins.digitalWritePin(DigitalPin.P1, 1)        
     } else {
         pins.digitalWritePin(DigitalPin.P1, 0)
     }
@@ -202,6 +208,8 @@ music.onEvent(MusicEvent.MelodyNotePlayed, function () {
     } else {
         pins.digitalWritePin(DigitalPin.P2, 0)
     }
+
+    
 })
 let chordCounter = 0
 let noteCounter = 0
@@ -422,8 +430,12 @@ songChars = [
 ]
 basic.showString(songChars[song], 40)
 basic.forever(function () {
-    if (started) {
-        // aiting for user to press start Button
+    if (started) {  // user has pressed start Button
+
+        // end drum trigger
+        pins.digitalWritePin(DigitalPin.P1, 0)
+        pins.digitalWritePin(DigitalPin.P2, 0)
+    
         // handle each song
         // they vary in # notes, # chords, randomness, volume-change, rests
         // ------------------  16-note songs
