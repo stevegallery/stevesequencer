@@ -171,16 +171,16 @@ music.onEvent(MusicEvent.MelodyNotePlayed, function () {
 
 
 
-    if (noteCounter % 2 == 0) {
+    if (noteCounter % 2 == 0) { // every other beat
         pins.digitalWritePin(DigitalPin.P2, 1)
     } else {
         pins.digitalWritePin(DigitalPin.P2, 0)
     }
 
-    if (noteCounter % 4 == 0) {
+    if (noteCounter % 4 == 0) {// every 4th beat
         pins.digitalWritePin(DigitalPin.P1, 1)
     }
-    if (noteCounter % 4 == 2) {
+    if (noteCounter % 4 == 2) { // stop it after 2 beats
         pins.digitalWritePin(DigitalPin.P1, 0)
     }
 
@@ -450,93 +450,126 @@ basic.forever(function () {
         // ------------------  16-note songs
         if (song == 1) {
             // Am F G Am
-            music.playMelody(sequenceAm, music.tempo())
-            music.playMelody(sequenceF, music.tempo())
-            music.playMelody(sequenceG, music.tempo())
-            music.playMelody(sequenceAm, music.tempo())
+            while (true) {
+                music.playMelody(sequenceAm, music.tempo())
+                music.playMelody(sequenceF, music.tempo())
+                music.playMelody(sequenceG, music.tempo())
+                music.playMelody(sequenceAm, music.tempo())
+            }
         }
         if (song == 2) {
             // C Am F G
-            music.playMelody(sequenceC, music.tempo())
-            music.playMelody(sequenceAm, music.tempo())
-            music.playMelody(sequenceF, music.tempo())
-            music.playMelody(sequenceG, music.tempo())
+            while (true) {
+                music.playMelody(sequenceC, music.tempo())
+                music.playMelody(sequenceAm, music.tempo())
+                music.playMelody(sequenceF, music.tempo())
+                music.playMelody(sequenceG, music.tempo())
+            }
         }
         if (song == 3) {
             // "super-random" sequence
-            music.playMelody(sequenceCs, music.tempo())
+            while (true) {
+                music.playMelody(sequenceCs, music.tempo())
+            }
         }
 
         if (song == 4) {
             // random 16-note sequence in C scale (has rests)
-            music.playMelody(sequenceCs, music.tempo())
+            while (true) {
+                music.playMelody(sequenceCs, music.tempo())
+            }
         }
         if (song == 5) {
             // C F G F
-            music.playMelody(sequenceC, music.tempo())
-            music.playMelody(sequenceF, music.tempo())
-            music.playMelody(sequenceG, music.tempo())
-            music.playMelody(sequenceF, music.tempo())
+            while (true) {
+                music.playMelody(sequenceC, music.tempo())
+                music.playMelody(sequenceF, music.tempo())
+                music.playMelody(sequenceG, music.tempo())
+                music.playMelody(sequenceF, music.tempo())
+            }
         }
         if (song == 6) {
             // 3 note seqs; double-length first note each time
-            music.playMelody("C2:8 E2:4  C2", music.tempo())
-            music.playMelody("F2:8 A2:4  F2", music.tempo())
-            music.playMelody("G2:8 B2:4  G2", music.tempo())
-            music.playMelody("F2:8 C3:4  F2", music.tempo())
+            while (true) {
+                music.playMelody("C2:8 E2:4  C2", music.tempo())
+                music.playMelody("F2:8 A2:4  F2", music.tempo())
+                music.playMelody("G2:8 B2:4  G2", music.tempo())
+                music.playMelody("F2:8 C3:4  F2", music.tempo())
+            }
         }
         if (song == 7) {
             // 4 note seqs; volume-increase on 1st of every 4
-            music.playMelody("C2 E2 G2 C2", music.tempo())
-            music.playMelody("F2 A2 C3 F2", music.tempo())
-            music.playMelody("G2 B2 D2 G2", music.tempo())
-            music.playMelody("F2 C3 A2 F2", music.tempo())
+            while (true) {
+                music.playMelody("C2 E2 G2 C2", music.tempo())
+                music.playMelody("F2 A2 C3 F2", music.tempo())
+                music.playMelody("G2 B2 D2 G2", music.tempo())
+                music.playMelody("F2 C3 A2 F2", music.tempo())
+            }
         }
         if (song == 8) {
             // echoed notes
-            music.playMelody(sequenceCE, music.tempo())
-            music.playMelody(sequenceGE, music.tempo())
-            music.playMelody(sequenceFE, music.tempo())
-            music.playMelody(sequenceGE, music.tempo())
+            while (true) {
+                music.playMelody(sequenceCE, music.tempo())
+                music.playMelody(sequenceGE, music.tempo())
+                music.playMelody(sequenceFE, music.tempo())
+                music.playMelody(sequenceGE, music.tempo())
+            }
         }
         if (song == 9) {
             // ostinato
-            music.playMelody("C2:8 " + ost, music.tempo())
-            music.playMelody("F2:8 " + ost, music.tempo())
+            while (true) {
+                music.playMelody("C2:8 " + ost, music.tempo())
+                music.playMelody("F2:8 " + ost, music.tempo())
+            }
         }
+
+
         if (song == 10) {
             // Am C Dm F (Ascending Am chords)
-            music.playMelody(sequenceAm, music.tempo())
-            music.playMelody(sequenceC, music.tempo())
-            music.playMelody(sequenceDm, music.tempo())
-            music.playMelody(sequenceF, music.tempo())
+            while (true) {
+                music.playMelody(sequenceAm, music.tempo())
+                music.playMelody(sequenceC, music.tempo())
+                music.playMelody(sequenceDm, music.tempo())
+                music.playMelody(sequenceF, music.tempo())
+            }
         }
         // ------------------ 8-note songs
         if (song == 11) {
             // Am G F Em (falling Am)
-            music.playMelody(sequenceAm, music.tempo())
-            music.playMelody(sequenceG, music.tempo())
-            music.playMelody(sequenceF, music.tempo())
-            music.playMelody(sequenceEm, music.tempo())
+            while (true) {
+                music.playMelody(sequenceAm, music.tempo())
+                music.playMelody(sequenceG, music.tempo())
+                music.playMelody(sequenceF, music.tempo())
+                music.playMelody(sequenceEm, music.tempo())
+            }
         }
+
         if (song == 12) {
             // different pattern for each chord
             // C F G F
-            music.playMelody(sequenceC, music.tempo())
-            music.playMelody(sequenceF, music.tempo())
-            music.playMelody(sequenceG, music.tempo())
-            music.playMelody(sequenceF, music.tempo())
+            while (true) {
+                music.playMelody(sequenceC, music.tempo())
+                music.playMelody(sequenceF, music.tempo())
+                music.playMelody(sequenceG, music.tempo())
+                music.playMelody(sequenceF, music.tempo())
+            }
         }
+
         if (song == 13) {
             // Walkdown
-            music.playMelody("C3:8 " + ost, music.tempo())
-            music.playMelody("B2:8 " + ost, music.tempo())
-            music.playMelody("A2:8 " + ost, music.tempo())
-            music.playMelody("G2:8 " + ost, music.tempo())
+            while (true) {
+                music.playMelody("C3:8 " + ost, music.tempo())
+                music.playMelody("B2:8 " + ost, music.tempo())
+                music.playMelody("A2:8 " + ost, music.tempo())
+                music.playMelody("G2:8 " + ost, music.tempo())
+            }
         }
+
         if (song == 16) {
             // random 8-note sequence
-            music.playMelody(sequenceCs, music.tempo())
+            while (true) {
+                music.playMelody(sequenceCs, music.tempo())
+            }
         }
     }
 })
