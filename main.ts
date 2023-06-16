@@ -14,11 +14,11 @@ function showTempo() {
     showBG()
 }
 function showBG() {
-    // show sequence dot
+    // show sequence dots
     for (let dot = 0; dot <= seqLen - 1; dot++) {
         led.plotBrightness(dot % 5, dot / 5, dim)
     }
-    // show chord dot
+    // show chord dots
     for (let dot2 = 0; dot2 <= numChords - 1; dot2++) {
         led.plotBrightness(dot2, 4, dim)
     }
@@ -36,7 +36,7 @@ input.onButtonPressed(Button.B, function () {
         showTempo()
     }
 })
-// do everthing needed before playing song
+// do everything needed before playing song
 function setup() {
     // create sequence strings
     sequenceC = " "
@@ -59,14 +59,14 @@ function setup() {
         seqLen = 8
     }
     if (song == 7) {
-        // special short riff
+        // special short seq
         seqLen = 4
     }
     if (song == 6) {
-        // special short riff, with long start-note
+        // special short seq, with long start-note
         seqLen = 3
     }
-    
+
     if (song == 4 || song == 16 || song == 3) {
         // single sequence
         numChords = 1
@@ -75,7 +75,7 @@ function setup() {
         let remainingBeats = 4 * seqLen
         for (let i = 0; i <= seqLen - 1; i++) {
             sNote = randint(0, Cscale.length - 1)
-            if (song != 3) {
+            if (song != 3) { // super-random
                 sequenceCs = "" + sequenceCs + Cscale[sNote]
             }
 
@@ -95,11 +95,13 @@ function setup() {
                         sequenceCs = "" + sequenceCs + Cscale[sNote] + ":" + notelen  // random length
                         ++notesOut
                     }
-                }                
+                }
             }
             sequenceCs = "" + sequenceCs + " "
         }
-        seqLen = notesOut
+        if (song == 3) { // super-random seq
+            seqLen = notesOut
+        }
     } else {
         for (let j = 0; j <= seqLen - 1; j++) {
             sNote = randint(0, CMnotes.length - 1)
@@ -120,7 +122,7 @@ function setup() {
         }
     }
     basic.clearScreen()
-    if (song == 99) {
+    if (song == 99) { // song not currently used
         numChords = 2
         for (let k = 0; k <= seqLen - 1; k++) {
             sNote = randint(0, AmXNotes.length - 1)
@@ -164,6 +166,25 @@ function setup() {
 }
 // do actions for each note
 music.onEvent(MusicEvent.MelodyNotePlayed, function () {
+
+    // trigger drums via pins
+
+
+
+    if (noteCounter % 2 == 0) {
+        pins.digitalWritePin(DigitalPin.P2, 1)
+    } else {
+        pins.digitalWritePin(DigitalPin.P2, 0)
+    }
+
+    if (noteCounter % 4 == 0) {
+        pins.digitalWritePin(DigitalPin.P1, 1)
+    }
+    if (noteCounter % 4 == 2) {
+        pins.digitalWritePin(DigitalPin.P1, 0)
+    }
+
+
     // reset bright dots
     led.plotBrightness(noteCounter % 5, noteCounter / 5, dim)
     led.plotBrightness(chordCounter, 4, dim)
@@ -196,20 +217,10 @@ music.onEvent(MusicEvent.MelodyNotePlayed, function () {
     // light new dots
     led.plotBrightness(noteCounter % 5, noteCounter / 5, 255)
     led.plotBrightness(chordCounter, 4, 255)
-    
-    // trigger drums via pins
-    if (noteCounter % 4 == 0) {
-        pins.digitalWritePin(DigitalPin.P1, 1)        
-    } else {
-        pins.digitalWritePin(DigitalPin.P1, 0)
-    }
-    if (noteCounter % 2 == 0) {
-        pins.digitalWritePin(DigitalPin.P2, 1)
-    } else {
-        pins.digitalWritePin(DigitalPin.P2, 0)
-    }
 
-    
+
+
+
 })
 let chordCounter = 0
 let noteCounter = 0
@@ -432,10 +443,8 @@ basic.showString(songChars[song], 40)
 basic.forever(function () {
     if (started) {  // user has pressed start Button
 
-        // end drum trigger
-        pins.digitalWritePin(DigitalPin.P1, 0)
-        pins.digitalWritePin(DigitalPin.P2, 0)
-    
+
+
         // handle each song
         // they vary in # notes, # chords, randomness, volume-change, rests
         // ------------------  16-note songs
