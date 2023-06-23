@@ -62,6 +62,16 @@ function setup() {
         // special short seq
         seqLen = 4
     }
+
+    // how long should it take to play 1 seq, at a faster tempo, so we can then delay it to catch up
+    let adjust = 36
+    music.changeTempoBy(-adjust)
+    seqShouldTake = seqLen * music.beat(BeatFraction.Whole)
+    console.log("taregt BPM=" + music.tempo() / 4)
+    music.changeTempoBy(adjust)
+    console.log("seq should take:" + seqShouldTake)
+
+
     if (song == 6) {
         // special short seq, with long start-note
         seqLen = 3
@@ -222,6 +232,7 @@ music.onEvent(MusicEvent.MelodyNotePlayed, function () {
 
 
 })
+let seqShouldTake = 0;
 let chordCounter = 0
 let noteCounter = 0
 let sNote = 0
@@ -260,7 +271,7 @@ let songChars: string[] = []
 volH = 255
 volM = volH / 2
 let volL = 40
-music.setTempo(( 60*8) + 3)
+music.setTempo(60 * 8)
 numChords = 4
 Cscale = [
     "C1",
@@ -437,7 +448,8 @@ songChars = [
     "W",
     "4",
     "5",
-    "r"
+    "r",
+    "F"
 ]
 basic.showString(songChars[song], 40)
 basic.forever(function () {
@@ -466,17 +478,21 @@ basic.forever(function () {
                 music.playMelody(sequenceG, music.tempo())
             }
         }
-        if (song == 3) {
-            // "super-random" sequence
-            while (true) {
-                music.playMelody(sequenceCs, music.tempo())
-            }
-        }
 
-        if (song == 4) {
-            // random 16-note sequence in C scale (has rests)
+
+        if ((song == 4)  // random 16-note sequence in C scale (has rests)
+            || (song == 3)   // "super-random" sequence
+        ) {
+            let start = control.millis();
+            let elapsedShouldBe = seqShouldTake
             while (true) {
                 music.playMelody(sequenceCs, music.tempo())
+                // keep the BPM correct by delaying to target BPM
+                let actualElapsed = control.millis() - start
+                console.log("elapsed:" + actualElapsed + ", should be:" + elapsedShouldBe)
+                basic.pause(elapsedShouldBe - actualElapsed);
+                console.log("i just paused:" + (elapsedShouldBe - actualElapsed))
+                elapsedShouldBe += seqShouldTake
             }
         }
         if (song == 5) {
@@ -569,6 +585,16 @@ basic.forever(function () {
             // random 8-note sequence
             while (true) {
                 music.playMelody(sequenceCs, music.tempo())
+            }
+        }
+
+
+        if (song == 17) {
+            // endless
+            while (true) {
+                music.playMelody(
+                    Cscale[randint(0, Cscale.length - 1)],
+                    music.tempo())
             }
         }
     }
