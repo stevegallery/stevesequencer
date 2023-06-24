@@ -53,6 +53,7 @@ function setup() {
     sequenceEm = " "
     sequenceDm = " "
     sequenceCs = " "
+    sequenceCs2 = " "
     ost = " "
     seqLen = 16
     if (song >= 11) {
@@ -62,12 +63,17 @@ function setup() {
         // special short seq
         seqLen = 4
     }
+    
+    if (song == 18) { // double
+        seqLen=16   
+    }
+
 
     // how long should it take to play 1 seq, at a faster tempo, so we can then delay it to catch up
     let adjust = 36
     music.changeTempoBy(-adjust)
     seqShouldTake = seqLen * music.beat(BeatFraction.Whole)
-    console.log("taregt BPM=" + music.tempo() / 4)
+    console.log("target BPM=" + music.tempo() / 4)
     music.changeTempoBy(adjust)
     console.log("seq should take:" + seqShouldTake)
 
@@ -77,22 +83,25 @@ function setup() {
         seqLen = 3
     }
 
-    if (song == 4 || song == 16 || song == 3) {
+    if (song == 4 || song == 16 || song == 3 || song==18) {
         // single sequence
         numChords = 1
-        let notesOut = 0
 
+
+        let notesOut = 0
         let remainingBeats = 4 * seqLen
         for (let i = 0; i <= seqLen - 1; i++) {
             sNote = randint(0, Cscale.length - 1)
-            if (song != 3) { // super-random
+            if ((song!=3) && (song!=18)) { // not super-random seq
                 sequenceCs = "" + sequenceCs + Cscale[sNote]
+                sequenceCs2 = "" + sequenceCs2 + Cscale[randint(0, Cscale.length - 1)]
             }
 
-            if (song >= 11) {  // 8-note seqs
+            if ((song!=18) && (song >= 11)) {  // 8-note seqs
                 sequenceCs = "" + sequenceCs + ":8"  // double length
             }
-            if (song == 3) { // super-random seq
+
+            if (song == 3 || song ==18) { // super-random seq
                 if (remainingBeats >= 0) {
                     let notelen = 2 ** randint(1, 3)
                     if (notelen >= remainingBeats) {
@@ -103,13 +112,15 @@ function setup() {
                     }
                     if (notelen > 0) {
                         sequenceCs = "" + sequenceCs + Cscale[sNote] + ":" + notelen  // random length
+                        sequenceCs2 = "" + sequenceCs2 + Cscale[randint(0, Cscale.length - 1)] + ":" + notelen  // random length
                         ++notesOut
                     }
                 }
             }
             sequenceCs = "" + sequenceCs + " "
+            sequenceCs2 = "" + sequenceCs2 + " "
         }
-        if (song == 3) { // super-random seq
+        if (song == 3 || song==18) { // super-random seq
             seqLen = notesOut
         }
     } else {
@@ -132,7 +143,7 @@ function setup() {
         }
     }
     basic.clearScreen()
-    if (song == 99) { // song not currently used
+    if (song == 99) { // this song is not currently used
         numChords = 2
         for (let k = 0; k <= seqLen - 1; k++) {
             sNote = randint(0, AmXNotes.length - 1)
@@ -178,9 +189,6 @@ function setup() {
 music.onEvent(MusicEvent.MelodyNotePlayed, function () {
 
     // trigger drums via pins
-
-
-
     if (noteCounter % 2 == 0) { // every other beat
         pins.digitalWritePin(DigitalPin.P2, 1)
     } else {
@@ -197,11 +205,15 @@ music.onEvent(MusicEvent.MelodyNotePlayed, function () {
 
     // reset bright dots
     led.plotBrightness(noteCounter % 5, noteCounter / 5, dim)
-    led.plotBrightness(chordCounter, 4, dim)
+    if (song!=18) {
+        led.plotBrightness(chordCounter, 4, dim)
+    }
     noteCounter += 1
-    if (noteCounter >= seqLen) {
+    if (noteCounter >= seqLen) {    
         noteCounter = 0
-        chordCounter += 1
+        if (song != 18)  {  // special random chord
+            chordCounter += 1
+        }
         // full volume for first note in seq
         music.setVolume(volH)
     } else {
@@ -224,9 +236,12 @@ music.onEvent(MusicEvent.MelodyNotePlayed, function () {
     if (chordCounter >= numChords) {
         chordCounter = 0
     }
+
     // light new dots
     led.plotBrightness(noteCounter % 5, noteCounter / 5, 255)
-    led.plotBrightness(chordCounter, 4, 255)
+    if (song!=18) {
+        led.plotBrightness(chordCounter, 4, 255)
+    }
 
 
 
@@ -238,6 +253,7 @@ let noteCounter = 0
 let sNote = 0
 let ost = ""
 let sequenceCs = ""
+let sequenceCs2 = ""
 let sequenceDm = ""
 let sequenceEm = ""
 let sequenceGX = ""
@@ -431,6 +447,8 @@ song = 1
 // descenting chords
 // individual patterm for each chord
 // single short random seq
+// endless
+// double - 2 seqs
 songChars = [
     " ",
     "a",
@@ -449,7 +467,8 @@ songChars = [
     "4",
     "5",
     "r",
-    "F"
+    "F",
+    "D"
 ]
 basic.showString(songChars[song], 40)
 basic.forever(function () {
@@ -481,12 +500,27 @@ basic.forever(function () {
 
 
         if ((song == 4)  // random 16-note sequence in C scale (has rests)
-            || (song == 3)   // "super-random" sequence
+            || (song == 3)  || (song=18) // "super-random" sequence
         ) {
             let start = control.millis();
             let elapsedShouldBe = seqShouldTake
             while (true) {
-                music.playMelody(sequenceCs, music.tempo())
+                if (song == 18) {  // double: 2 random seqs     
+                  if (Math.randomBoolean()) {
+                        chordCounter = 0
+                        led.plotBrightness(0, 4, 255)   
+                        led.plotBrightness(1, 4, dim)                       
+                        music.playMelody(sequenceCs, music.tempo())
+                    } else {
+                        chordCounter = 1
+                        led.plotBrightness(0, 4, dim)   
+                        led.plotBrightness(1, 4, 255)                       
+                        music.playMelody(sequenceCs2, music.tempo())
+                    }
+                }
+                if (song==3) {
+                    music.playMelody(sequenceCs, music.tempo())
+                }
                 // keep the BPM correct by delaying to target BPM
                 let actualElapsed = control.millis() - start
                 console.log("elapsed:" + actualElapsed + ", should be:" + elapsedShouldBe)
@@ -597,5 +631,9 @@ basic.forever(function () {
                     music.tempo())
             }
         }
+
+
+
+
     }
 })
