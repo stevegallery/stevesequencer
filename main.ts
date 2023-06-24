@@ -27,6 +27,9 @@ input.onButtonPressed(Button.B, function () {
     // let user either choose song, or change tempo
     if (!(started)) {
         song += 1
+        while (songChars[song] == "_") {  // skip blanks
+            song += 1
+        }
         if (song > songChars.length - 1) {
             song = 1
         }
@@ -56,7 +59,7 @@ function setup() {
     sequenceCs2 = " "
     ost = " "
     seqLen = 16
-    if (song >= 11) {
+    if (song >= CUTTOFF) {
         seqLen = 8
     }
     if (song == 7) {
@@ -64,9 +67,6 @@ function setup() {
         seqLen = 4
     }
     
-    if (song == 18) { // double
-        seqLen=16   
-    }
 
 
     // how long should it take to play 1 seq, at a faster tempo, so we can then delay it to catch up
@@ -83,7 +83,7 @@ function setup() {
         seqLen = 3
     }
 
-    if (song == 4 || song == 16 || song == 3 || song==18) {
+    if (song == 4 || song == (CUTTOFF+3) || song == 3 || song==18) {
         // single sequence
         numChords = 1
 
@@ -97,7 +97,7 @@ function setup() {
                 sequenceCs2 = "" + sequenceCs2 + Cscale[randint(0, Cscale.length - 1)]
             }
 
-            if ((song!=18) && (song >= 11)) {  // 8-note seqs
+            if (song >= CUTTOFF) {  // 8-note seqs
                 sequenceCs = "" + sequenceCs + ":8"  // double length
             }
 
@@ -127,13 +127,13 @@ function setup() {
         for (let j = 0; j <= seqLen - 1; j++) {
             sNote = randint(0, CMnotes.length - 1)
             sequenceC = "" + sequenceC + CMnotes[sNote] + " "
-            if (song == 12) {
+            if (song == (CUTTOFF+1)) {
                 // a diffrent pattern
                 sNote = randint(0, FMnotes.length - 1)
             }
             sequenceF = "" + sequenceF + FMnotes[sNote] + " "
             // a diffrent pattern
-            if (song == 12) {
+            if (song == (CUTTOFF+1)) {
                 sNote = randint(0, GMnotes.length - 1)
             }
             sequenceG = "" + sequenceG + GMnotes[sNote] + " "
@@ -175,7 +175,7 @@ function setup() {
         }
     }
     // Walkdown-bass
-    if (song == 13) {
+    if (song == (CUTTOFF+2)) {
         seqLen = 7
         for (let index = 0; index < 6; index++) {
             sNote = randint(0, Oscale.length)
@@ -247,6 +247,7 @@ music.onEvent(MusicEvent.MelodyNotePlayed, function () {
 
 
 })
+let CUTTOFF=20;
 let seqShouldTake = 0;
 let chordCounter = 0
 let noteCounter = 0
@@ -434,41 +435,32 @@ DmNotes = [
 ]
 dim = 255 / 20
 song = 1
-// Am progression
-// CAFG
-// Am G
-// single long random seq
-// 1 4 5
-// long first note
-// volume change
-// echo
-// ostinato
-// asc chords
-// descenting chords
-// individual patterm for each chord
-// single short random seq
-// endless
-// double - 2 seqs
 songChars = [
     " ",
-    "a",
-    "C",
-    "S",
-    "R",
-    "1",
-    "L",
-    "V",
-    "E",
-    "O",
-    "+",
-    "-",
-    "I",
-    "W",
-    "4",
-    "5",
-    "r",
-    "F",
-    "D"
+    "a",// Am progression
+    "C",// CAFG
+    "S",// super-random
+    "R", // single 16 random seq
+    "1", // 1 4 5
+    "L",// long first note
+    "V", // volume change
+    "E", // echo
+    "O",// ostinato
+    "_", //10
+    "_", //11
+    "_", //12
+    "_", //13
+    "_", //14
+    "_", //15
+    "_", //16
+    "_", //17
+    "D", // double - 2 seqs
+    "+",// asc chords
+    "-",// descenting chords
+    "I",// individual patterm for each chord
+    "W",// wlkdown
+    "r",// single short random seq
+    "F" // endless
 ]
 basic.showString(songChars[song], 40)
 basic.forever(function () {
@@ -498,9 +490,10 @@ basic.forever(function () {
             }
         }
 
+        console.log("song=" + song)
 
         if ((song == 4)  // random 16-note sequence in C scale (has rests)
-            || (song == 3)  || (song=18) // "super-random" sequence
+            || (song == 3) || (song==18) // "super-random" sequence
         ) {
             let start = control.millis();
             let elapsedShouldBe = seqShouldTake
@@ -517,8 +510,7 @@ basic.forever(function () {
                         led.plotBrightness(1, 4, 255)                       
                         music.playMelody(sequenceCs2, music.tempo())
                     }
-                }
-                if (song==3) {
+                }else {
                     music.playMelody(sequenceCs, music.tempo())
                 }
                 // keep the BPM correct by delaying to target BPM
@@ -529,6 +521,8 @@ basic.forever(function () {
                 elapsedShouldBe += seqShouldTake
             }
         }
+
+        console.log("after song=" + song)
         if (song == 5) {
             // C F G F
             while (true) {
@@ -574,7 +568,7 @@ basic.forever(function () {
         }
 
 
-        if (song == 10) {
+        if (song == (CUTTOFF -1)) {
             // Am C Dm F (Ascending Am chords)
             while (true) {
                 music.playMelody(sequenceAm, music.tempo())
@@ -584,7 +578,7 @@ basic.forever(function () {
             }
         }
         // ------------------ 8-note songs
-        if (song == 11) {
+        if (song == CUTTOFF) {
             // Am G F Em (falling Am)
             while (true) {
                 music.playMelody(sequenceAm, music.tempo())
@@ -594,7 +588,7 @@ basic.forever(function () {
             }
         }
 
-        if (song == 12) {
+        if (song == (CUTTOFF+1)) {
             // different pattern for each chord
             // C F G F
             while (true) {
@@ -605,7 +599,7 @@ basic.forever(function () {
             }
         }
 
-        if (song == 13) {
+        if (song == (CUTTOFF + 2)) {
             // Walkdown
             while (true) {
                 music.playMelody("C3:8 " + ost, music.tempo())
@@ -615,7 +609,7 @@ basic.forever(function () {
             }
         }
 
-        if (song == 16) {
+        if (song == (CUTTOFF + 3)) {
             // random 8-note sequence
             while (true) {
                 music.playMelody(sequenceCs, music.tempo())
@@ -623,7 +617,7 @@ basic.forever(function () {
         }
 
 
-        if (song == 17) {
+        if (song == (CUTTOFF + 4)) {
             // endless
             while (true) {
                 music.playMelody(
