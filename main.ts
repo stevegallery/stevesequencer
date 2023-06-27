@@ -34,6 +34,11 @@ input.onButtonPressed(Button.B, function () {
             song = 1
         }
         basic.showString(songChars[song], 40)
+        if ( (song == 3) || (song == 18) || (song == 10) || (song == 11) ){
+            superRandom = true
+        } else {
+            superRandom = false
+        }
     } else {
         music.changeTempoBy(60)
         showTempo()
@@ -83,7 +88,7 @@ function setup() {
         seqLen = 3
     }
 
-    if (song == 4 || song == (CUTTOFF+3) || song == 3 || song==18 || song==10 || song==11) {
+    if (song == 4 || song == (CUTTOFF+3) || superRandom ) {
         // single sequence
         numChords = 1
 
@@ -92,7 +97,7 @@ function setup() {
         let remainingBeats = 4 * seqLen
         for (let i = 0; i <= seqLen - 1; i++) {
             sNote = randint(0, Cscale.length - 1)
-            if ((song != 3) && (song != 18) && (song != 10) && (song != 11)) { // not super-random seq
+            if (!superRandom) {
                 sequenceCs = "" + sequenceCs + Cscale[sNote]
                 sequenceCs2 = "" + sequenceCs2 + Cscale[randint(0, Cscale.length - 1)]
             }
@@ -101,7 +106,7 @@ function setup() {
                 sequenceCs = "" + sequenceCs + ":8"  // double length
             }
 
-            if (song == 3 || song ==18 || song==10 || song==11) { // super-random seq
+            if (superRandom) {
                 if (remainingBeats >= 0) {
                     let notelen = 2 ** randint(1, 3)
                     if (notelen >= remainingBeats) {
@@ -122,7 +127,12 @@ function setup() {
                         if (song == 10){  // ocatave
                             sequenceCs2 = "" + sequenceCs2 + CscaleH[sNote] + ":" + notelen  // random length
                         }
-
+                        if (song == 99) {  // -1 note
+                            sequenceCs2 = "" + sequenceCs2 + CscaleH[sNote] + ":" + notelen  // random length
+                        }
+                        if (song == 99) {  // -4 note
+                            sequenceCs2 = "" + sequenceCs2 + CscaleH[sNote] + ":" + notelen  // random length
+                        }
                         ++notesOut
                     }
                 }
@@ -130,7 +140,7 @@ function setup() {
             sequenceCs = "" + sequenceCs + " "
             sequenceCs2 = "" + sequenceCs2 + " "
         }
-        if (song == 3 || song==18 || song==10 || song==11) { // super-random seq
+        if (superRandom) { 
             seqLen = notesOut
         }
     } else {
@@ -257,6 +267,7 @@ music.onEvent(MusicEvent.MelodyNotePlayed, function () {
 
 
 })
+let superRandom = false
 let CUTTOFF=20;
 let seqShouldTake = 0;
 let chordCounter = 0
@@ -523,15 +534,15 @@ song = 1
 songChars = [
     " ",
     "a",// Am progression
-    "C",// CAFG
+    "C",// CAFG progression
     "S",// super-random
-    "R", // single 16 random seq
-    "1", // 1 4 5
+    "R", // single 16-equal-length-note random seq
+    "1", // 145 progression
     "L",// long first note
     "V", // volume change
-    "E", // echo
+    "E", // echoed notes
     "O",// ostinato
-    "8", // dupictae seqs, hi /lo octave
+    "8", // 2 duplicate seqs, lo/hi octave
     "B", // bass
     "_", //12
     "_", //13
@@ -539,12 +550,12 @@ songChars = [
     "_", //15
     "_", //16
     "_", //17
-    "D", // double 
+    "D", // 2 seqs with same note length
     "+",// asc chords
-    "-",// descenting chords
-    "I",// individual patterm for each chord
-    "W",// wlkdown
-    "r",// single short random seq
+    "-",// descending chords
+    "I",// individual pattern for each of 4 chords
+    "W",// walkdown
+    "r",// single 8-note random seq
     "F" // endless
 ]
 basic.showString(songChars[song], 40)
@@ -575,8 +586,7 @@ basic.forever(function () {
 
 
         if ((song == 4)  // random 16-note sequence in C scale (has rests)
-            || (song == 3) || (song == 18) || (song == 10) || (song==11)// "super-random" sequences
-        ) {
+            || superRandom ) {
             let start = control.millis();
             let elapsedShouldBe = seqShouldTake
             while (true) {
