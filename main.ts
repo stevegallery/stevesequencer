@@ -83,7 +83,7 @@ function setup() {
         seqLen = 3
     }
 
-    if (song == 4 || song == (CUTTOFF+3) || song == 3 || song==18 || song==10) {
+    if (song == 4 || song == (CUTTOFF+3) || song == 3 || song==18 || song==10 || song==11) {
         // single sequence
         numChords = 1
 
@@ -92,7 +92,7 @@ function setup() {
         let remainingBeats = 4 * seqLen
         for (let i = 0; i <= seqLen - 1; i++) {
             sNote = randint(0, Cscale.length - 1)
-            if ((song != 3) && (song != 18) && (song != 10)) { // not super-random seq
+            if ((song != 3) && (song != 18) && (song != 10) && (song != 11)) { // not super-random seq
                 sequenceCs = "" + sequenceCs + Cscale[sNote]
                 sequenceCs2 = "" + sequenceCs2 + Cscale[randint(0, Cscale.length - 1)]
             }
@@ -101,7 +101,7 @@ function setup() {
                 sequenceCs = "" + sequenceCs + ":8"  // double length
             }
 
-            if (song == 3 || song ==18 || song==10) { // super-random seq
+            if (song == 3 || song ==18 || song==10 || song==11) { // super-random seq
                 if (remainingBeats >= 0) {
                     let notelen = 2 ** randint(1, 3)
                     if (notelen >= remainingBeats) {
@@ -111,13 +111,18 @@ function setup() {
                         remainingBeats -= notelen;
                     }
                     if (notelen > 0) {
-                        sequenceCs = "" + sequenceCs + Cscale[sNote] + ":" + notelen  // random length
+                        if (song == 11) {  // bass
+                            sequenceCs = "" + sequenceCs + CscaleB[randint(0, CscaleB.length - 1)] + ":" + notelen  // random length
+                        } else {
+                            sequenceCs = "" + sequenceCs + Cscale[sNote] + ":" + notelen  // random length
+                        }
                         if (song==18) {// double
                             sequenceCs2 = "" + sequenceCs2 + Cscale[randint(0, Cscale.length - 1)] + ":" + notelen  // random length
                         }
                         if (song == 10){  // ocatave
                             sequenceCs2 = "" + sequenceCs2 + CscaleH[sNote] + ":" + notelen  // random length
                         }
+
                         ++notesOut
                     }
                 }
@@ -125,7 +130,7 @@ function setup() {
             sequenceCs = "" + sequenceCs + " "
             sequenceCs2 = "" + sequenceCs2 + " "
         }
-        if (song == 3 || song==18 || song==10) { // super-random seq
+        if (song == 3 || song==18 || song==10 || song==11) { // super-random seq
             seqLen = notesOut
         }
     } else {
@@ -133,11 +138,11 @@ function setup() {
             sNote = randint(0, CMnotes.length - 1)
             sequenceC = "" + sequenceC + CMnotes[sNote] + " "
             if (song == (CUTTOFF+1)) {
-                // a diffrent pattern
+                // a different pattern
                 sNote = randint(0, FMnotes.length - 1)
             }
             sequenceF = "" + sequenceF + FMnotes[sNote] + " "
-            // a diffrent pattern
+            // a different pattern
             if (song == (CUTTOFF+1)) {
                 sNote = randint(0, GMnotes.length - 1)
             }
@@ -286,6 +291,7 @@ let AmXNotes: string[] = []
 let AmNotes: string[] = []
 let Oscale: string[] = []
 let Cscale: string[] = []
+let CscaleB: string[] = []
 let CscaleH: string[] = []
 
 let numChords = 0
@@ -351,6 +357,46 @@ CscaleH = [
     "G4",
     "A4",
     "B4",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-"
+]
+
+CscaleB = [
+    "A0", 
+    "B0",
+    "C0",
+    "D0",
+    "E0",
+    "F0",
+    "G0",
+    "A1",
+    "B1",
+    "C1",
+    "D1",
+    "E1",
+    "F1",
+    "G1",
+    "A2",
+    "B2",
+    "C2",
+    "D2",
+    "E2",
+    "F2",
+    "G2",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-",
     "-",
     "-",
     "-",
@@ -486,7 +532,7 @@ songChars = [
     "E", // echo
     "O",// ostinato
     "8", // dupictae seqs, hi /lo octave
-    "_", //11
+    "B", // bass
     "_", //12
     "_", //13
     "_", //14
@@ -529,14 +575,15 @@ basic.forever(function () {
 
 
         if ((song == 4)  // random 16-note sequence in C scale (has rests)
-            || (song == 3) || (song == 18) || (song == 10) // "super-random" sequence
+            || (song == 3) || (song == 18) || (song == 10) || (song==11)// "super-random" sequences
         ) {
             let start = control.millis();
             let elapsedShouldBe = seqShouldTake
             while (true) {
                 if ((song==18) // double
                 ||(song==10) ){ // octave
-                  if (Math.randomBoolean()) {
+                // random chord 
+                  if (Math.randomBoolean()) {                      
                         chordCounter = 0
                         led.plotBrightness(0, 4, 255)   
                         led.plotBrightness(1, 4, dim)                       
