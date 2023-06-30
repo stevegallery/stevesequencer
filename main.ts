@@ -23,6 +23,7 @@ function showBG() {
         led.plotBrightness(dot2, 4, dim)
     }
 }
+
 input.onButtonPressed(Button.B, function () {
     // let user either choose song, or change tempo
     if (!(started)) {
@@ -34,14 +35,14 @@ input.onButtonPressed(Button.B, function () {
             song = 1
         }
         basic.showString(songChars[song], 40)
-        if ((song == 3) || (song == 18) || (song == 10) || (song == 11) || (song == 12) || (song == 13) ){
+        if ((song == 3) || (song == 18) || (song == 10) || (song == 11) || (song == 12) || (song == 13)) {
             superRandom = true
         } else {
             superRandom = false
         }
 
-        if (song==18 || song == 10 || song == 12 || song == 13) {
-            doubleSong = true 
+        if (song == 18 || song == 10 || song == 12 || song == 13) {
+            doubleSong = true
         } else {
             doubleSong = false
         }
@@ -78,16 +79,17 @@ function setup() {
         // special short seq
         seqLen = 4
     }
-    
 
 
-    // how long should it take to play 1 seq, at a faster tempo, so we can then delay it to catch up
-    let adjust = 36
-    music.changeTempoBy(-adjust)
-    seqShouldTake = seqLen * music.beat(BeatFraction.Whole)
-    console.log("target BPM=" + music.tempo() / 4)
-    music.changeTempoBy(adjust)
-    console.log("seq should take:" + seqShouldTake)
+    if (superRandom) {
+        // how long should it take to play 1 seq, at a slower tempo, so we can then delay to catch up
+        let adjust = 36
+        music.changeTempoBy(-adjust)
+        seqShouldTake = seqLen * music.beat(BeatFraction.Whole)
+        console.log("target BPM=" + music.tempo() / 4)
+        music.changeTempoBy(adjust)
+        console.log("seq should take:" + seqShouldTake)
+    }
 
 
     if (song == 6) {
@@ -95,7 +97,7 @@ function setup() {
         seqLen = 3
     }
 
-    if (song == 4 || song == (CUTTOFF+3) || superRandom ) {
+    if (song == 4 || song == (CUTTOFF + 3) || superRandom) {
         // single sequence
         numChords = 1
 
@@ -126,26 +128,26 @@ function setup() {
                         if (song == 11) {  // bass
                             sequenceCs = "" + sequenceCs + CscaleB[randint(0, CscaleB.length - 1)] + ":" + notelen  // random length
                         } else {
-                            sequenceCs = "" + sequenceCs + Cscale[sNote] + ":" + notelen  
+                            sequenceCs = "" + sequenceCs + Cscale[sNote] + ":" + notelen
                         }
-                        if (song==18) {// double
-                            sequenceCs2 = "" + sequenceCs2 + Cscale[randint(0, Cscale.length - 1)] + ":" + notelen  
+                        if (song == 18) {// double
+                            sequenceCs2 = "" + sequenceCs2 + Cscale[randint(0, Cscale.length - 1)] + ":" + notelen
                         }
-                        if (song == 10){  // octave
-                            sequenceCs2 = "" + sequenceCs2 + CscaleH[sNote] + ":" + notelen 
+                        if (song == 10) {  // octave
+                            sequenceCs2 = "" + sequenceCs2 + CscaleH[sNote] + ":" + notelen
                         }
                         if (song == 12) {  // -1 note
-                            if (sNote >0) {
-                                sequenceCs2 = "" + sequenceCs2 + Cscale[sNote-1] + ":" + notelen  
+                            if (sNote > 0) {
+                                sequenceCs2 = "" + sequenceCs2 + Cscale[sNote - 1] + ":" + notelen
                             } else {
-                                sequenceCs2 = "" + sequenceCs2 + Cscale[sNote+6] + ":" + notelen
+                                sequenceCs2 = "" + sequenceCs2 + Cscale[sNote + 6] + ":" + notelen
                             }
                         }
                         if (song == 13) {  // -4 note
                             if (sNote > 3) {
-                                sequenceCs2 = "" + sequenceCs2 + Cscale[sNote-4] + ":" + notelen 
+                                sequenceCs2 = "" + sequenceCs2 + Cscale[sNote - 4] + ":" + notelen
                             } else {
-                                sequenceCs2 = "" + sequenceCs2 + Cscale[sNote+3] + ":" + notelen
+                                sequenceCs2 = "" + sequenceCs2 + Cscale[sNote + 3] + ":" + notelen
                             }
                         }
                         ++notesOut
@@ -155,20 +157,20 @@ function setup() {
             sequenceCs = "" + sequenceCs + " "
             sequenceCs2 = "" + sequenceCs2 + " "
         }
-        if (superRandom) { 
+        if (superRandom) {
             seqLen = notesOut
         }
     } else {
         for (let j = 0; j <= seqLen - 1; j++) {
             sNote = randint(0, CMnotes.length - 1)
             sequenceC = "" + sequenceC + CMnotes[sNote] + " "
-            if (song == (CUTTOFF+1)) {
+            if (song == (CUTTOFF + 1)) {
                 // a different pattern
                 sNote = randint(0, FMnotes.length - 1)
             }
             sequenceF = "" + sequenceF + FMnotes[sNote] + " "
             // a different pattern
-            if (song == (CUTTOFF+1)) {
+            if (song == (CUTTOFF + 1)) {
                 sNote = randint(0, GMnotes.length - 1)
             }
             sequenceG = "" + sequenceG + GMnotes[sNote] + " "
@@ -210,7 +212,7 @@ function setup() {
         }
     }
     // Walkdown-bass
-    if (song == (CUTTOFF+2)) {
+    if (song == (CUTTOFF + 2)) {
         seqLen = 7
         for (let index = 0; index < 6; index++) {
             sNote = randint(0, Oscale.length)
@@ -244,9 +246,9 @@ music.onEvent(MusicEvent.MelodyNotePlayed, function () {
         led.plotBrightness(chordCounter, 4, dim)
     }
     noteCounter += 1
-    if (noteCounter >= seqLen) {    
+    if (noteCounter >= seqLen) {
         noteCounter = 0
-        if (!doubleSong)  {  // special random chord
+        if (!doubleSong) {  // special random chord
             chordCounter += 1
         }
         // full volume for first note in seq
@@ -284,7 +286,7 @@ music.onEvent(MusicEvent.MelodyNotePlayed, function () {
 })
 let superRandom = false
 let doubleSong = false
-let CUTTOFF=20;
+let CUTTOFF = 20;
 let seqShouldTake = 0;
 let chordCounter = 0
 let noteCounter = 0
@@ -395,7 +397,7 @@ CscaleH = [
 ]
 
 CscaleB = [
-    "A0", 
+    "A0",
     "B0",
     "C0",
     "D0",
@@ -601,25 +603,31 @@ basic.forever(function () {
         }
 
 
-        if ((song == 4)  // random 16-note sequence in C scale (has rests)
-            || superRandom ) {
+        if (song == 4) { // random 16-note sequence in C scale (has rests)
+            while (true) {
+                music.playMelody(sequenceCs, music.tempo())
+            }
+        }
+
+
+        if (superRandom) {
             let start = control.millis();
             let elapsedShouldBe = seqShouldTake
             while (true) {
-                if (doubleSong ) {
-                // random chord 
-                  if (Math.randomBoolean()) {                      
+                if (doubleSong) {
+                    // random chord 
+                    if (Math.randomBoolean()) {
                         chordCounter = 0
-                        led.plotBrightness(0, 4, 255)   
-                        led.plotBrightness(1, 4, dim)                       
+                        led.plotBrightness(0, 4, 255)
+                        led.plotBrightness(1, 4, dim)
                         music.playMelody(sequenceCs, music.tempo())
                     } else {
                         chordCounter = 1
-                        led.plotBrightness(0, 4, dim)   
-                        led.plotBrightness(1, 4, 255)                       
+                        led.plotBrightness(0, 4, dim)
+                        led.plotBrightness(1, 4, 255)
                         music.playMelody(sequenceCs2, music.tempo())
                     }
-                }else {
+                } else {
                     music.playMelody(sequenceCs, music.tempo())
                 }
                 // keep the BPM correct by delaying to target BPM
@@ -676,7 +684,7 @@ basic.forever(function () {
         }
 
 
-        if (song == (CUTTOFF -1)) {
+        if (song == (CUTTOFF - 1)) {
             // Am C Dm F (Ascending Am chords)
             while (true) {
                 music.playMelody(sequenceAm, music.tempo())
@@ -696,7 +704,7 @@ basic.forever(function () {
             }
         }
 
-        if (song == (CUTTOFF+1)) {
+        if (song == (CUTTOFF + 1)) {
             // different pattern for each chord
             // C F G F
             while (true) {
