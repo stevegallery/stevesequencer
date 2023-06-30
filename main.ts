@@ -226,16 +226,19 @@ function setup() {
 music.onEvent(MusicEvent.MelodyNotePlayed, function () {
 
     // trigger drums via pins
-    if (noteCounter % 2 == 0) { // every other beat
+    let beatBase=4
+    if (noteCounter % beatBase == 0) { 
         pins.digitalWritePin(DigitalPin.P2, 1)
-    } else {
+    }
+    
+    if (noteCounter % beatBase == 1) {
         pins.digitalWritePin(DigitalPin.P2, 0)
     }
 
-    if (noteCounter % 4 == 0) {// every 4th beat
+    if (noteCounter % (beatBase *2) == 0) {
         pins.digitalWritePin(DigitalPin.P1, 1)
     }
-    if (noteCounter % 4 == 2) { // stop it after 2 beats
+    if (noteCounter % (beatBase * 2) == 1) { // stop it after 1 beat
         pins.digitalWritePin(DigitalPin.P1, 0)
     }
 
